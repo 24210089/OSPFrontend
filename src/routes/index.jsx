@@ -115,14 +115,13 @@ const AppRoutes = () => {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        </Route>
+        122
+          
       </Route>
 
       {/* Private Routes */}
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
-          {/* Default redirect when auth is disabled */}
-          <Route path="/" element={<Navigate to="/nu-tu" replace />} />
 
           {/* Dashboard */}
           <Route path="/dashboard" element={<DashboardPage />} />
@@ -297,9 +296,9 @@ const AppRoutes = () => {
           <Route path="/settings/backup" element={<BackupSettingsPage />} />
           <Route path="/settings/audit-log" element={<AuditLogPage />} />
 
-          {/* Redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Route>
+              {/* Default redirect when auth is disabled */}
+              <Route path="/" element={<Navigate to="/nu-tu" replace />} />
       </Route>
 
       {/* Error Pages */}
