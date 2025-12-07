@@ -121,6 +121,9 @@ const AppRoutes = () => {
       {/* Private Routes */}
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
+          {/* Default redirect when auth is disabled */}
+          <Route path="/" element={<Navigate to="/nu-tu" replace />} />
+
           {/* Dashboard */}
           <Route path="/dashboard" element={<DashboardPage />} />
 
