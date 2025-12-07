@@ -297,8 +297,6 @@ const AppRoutes = () => {
           <Route path="/settings/audit-log" element={<AuditLogPage />} />
 
         </Route>
-              {/* Default redirect when auth is disabled */}
-              <Route path="/" element={<Navigate to="/nu-tu" replace />} />
       </Route>
 
       {/* Error Pages */}
