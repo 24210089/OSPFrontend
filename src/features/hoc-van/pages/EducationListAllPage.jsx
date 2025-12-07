@@ -1,0 +1,335 @@
+// src/features/hoc-van/pages/EducationListAllPage.jsx
+
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Table,
+  Button,
+  Form,
+  Pagination,
+  Badge,
+} from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { FaGraduationCap, FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { educationService } from "@services";
+import LoadingSpinner from "@components/common/Loading/LoadingSpinner";
+import Breadcrumb from "@components/common/Breadcrumb";
+
+const EducationListAllPage = () => {
+  const [loading, setLoading] = useState(true);
+  const [educations, setEducations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [filter, setFilter] = useState({
+    level: "",
+    status: "",
+  });
+
+  // Debounce search - chờ 500ms sau khi ngừng gõ
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch khi thay đổi page, filter hoặc debouncedSearch
+  useEffect(() => {
+    fetchEducations();
+  }, [currentPage, filter.level, filter.status, debouncedSearch]);
+
+  // Reset về trang 1 khi search thay đổi
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  const fetchEducations = async () => {
+    try {
+      setLoading(true);
+      const params = {
+        page: currentPage,
+        limit: 10,
+      };
+      // Chỉ gửi search nếu có giá trị
+      if (debouncedSearch.trim()) {
+        params.search = debouncedSearch.trim();
+      }
+      // Chỉ gửi filter nếu có giá trị
+      if (filter.level) {
+        params.level = filter.level;
+      }
+      if (filter.status) {
+        params.status = filter.status;
+      }
+
+      const response = await educationService.getList(params);
+      if (response.success) {
+        setEducations(response.data.items || response.data || []);
+        setTotalPages(
+          response.data.totalPages || Math.ceil((response.data.total || 0) / 10)
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching educations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa học vấn này?")) {
+      try {
+        const result = await educationService.delete(id);
+        if (result.success) {
+          toast.success("Xóa học vấn thành công!");
+          fetchEducations();
+        } else {
+          toast.error(result.error || "Không thể xóa học vấn");
+        }
+      } catch (error) {
+        console.error("Error deleting education:", error);
+        toast.error("Lỗi khi xóa học vấn");
+      }
+    }
+  };
+
+  const getLevelBadge = (level) => {
+    const levels = {
+      high_school: { label: "THPT", variant: "secondary" },
+      vocational: { label: "Trung cấp", variant: "secondary" },
+      associate: { label: "Cao đẳng", variant: "info" },
+      bachelor: { label: "Cử nhân", variant: "primary" },
+      master: { label: "Thạc sĩ", variant: "success" },
+      doctorate: { label: "Tiến sĩ", variant: "danger" },
+      certificate: { label: "Chứng chỉ", variant: "warning" },
+      other: { label: "Khác", variant: "dark" },
+    };
+    const levelInfo = levels[level] || { label: level, variant: "secondary" };
+    return <Badge bg={levelInfo.variant}>{levelInfo.label}</Badge>;
+  };
+
+  const getStatusBadge = (status) => {
+    const statuses = {
+      dang_hoc: { label: "Đang học", variant: "primary" },
+      da_tot_nghiep: { label: "Đã tốt nghiệp", variant: "success" },
+      tam_nghi: { label: "Tạm nghỉ", variant: "warning" },
+      da_nghi: { label: "Đã nghỉ", variant: "secondary" },
+    };
+    const statusInfo = statuses[status] || {
+      label: status,
+      variant: "secondary",
+    };
+    return <Badge bg={statusInfo.variant}>{statusInfo.label}</Badge>;
+  };
+
+  if (loading && educations.length === 0) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "60vh" }}
+      >
+        <LoadingSpinner size="large" />
+      </div>
+    );
+  }
+
+  return (
+    <Container fluid className="py-4">
+      <Breadcrumb title="Quản lý Học vấn" items={[{ label: "Học vấn" }]} />
+
+      {/* Filters */}
+      <Card className="mb-4">
+        <Card.Body>
+          <Row className="align-items-end">
+            <Col md={4}>
+              <Form.Group>
+                <Form.Label>Tìm kiếm</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Tên nữ tu, trường học, ngành học..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Trình độ</Form.Label>
+                <Form.Select
+                  value={filter.level}
+                  onChange={(e) => {
+                    setFilter({ ...filter, level: e.target.value });
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="high_school">THPT</option>
+                  <option value="vocational">Trung cấp</option>
+                  <option value="associate">Cao đẳng</option>
+                  <option value="bachelor">Cử nhân</option>
+                  <option value="master">Thạc sĩ</option>
+                  <option value="doctorate">Tiến sĩ</option>
+                  <option value="certificate">Chứng chỉ</option>
+                  <option value="other">Khác</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group>
+                <Form.Label>Trạng thái</Form.Label>
+                <Form.Select
+                  value={filter.status}
+                  onChange={(e) => {
+                    setFilter({ ...filter, status: e.target.value });
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="dang_hoc">Đang học</option>
+                  <option value="da_tot_nghiep">Đã tốt nghiệp</option>
+                  <option value="tam_nghi">Tạm nghỉ</option>
+                  <option value="da_nghi">Đã nghỉ</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={2}>
+              <Button
+                variant="outline-secondary"
+                className="w-100"
+                onClick={() => {
+                  setSearchTerm("");
+                  setDebouncedSearch("");
+                  setFilter({ level: "", status: "" });
+                  setCurrentPage(1);
+                }}
+              >
+                Xóa bộ lọc
+              </Button>
+            </Col>
+          </Row>
+        </Card.Body>
+      </Card>
+
+      {/* Table */}
+      <Card>
+        <Card.Body>
+          {educations.length === 0 ? (
+            <div className="text-center py-5">
+              <FaGraduationCap size={48} className="text-muted mb-3" />
+              <h5>Chưa có thông tin học vấn</h5>
+              <p className="text-muted">
+                Vui lòng thêm học vấn từ trang thông tin nữ tu
+              </p>
+            </div>
+          ) : (
+            <>
+              <Table responsive hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nữ tu</th>
+                    <th>Trường học</th>
+                    <th>Ngành học</th>
+                    <th>Trình độ</th>
+                    <th>Năm tốt nghiệp</th>
+                    <th>Trạng thái</th>
+                    <th className="text-end">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {educations.map((edu, index) => (
+                    <tr key={edu.id}>
+                      <td>{(currentPage - 1) * 10 + index + 1}</td>
+                      <td>
+                        <Link to={`/nu-tu/${edu.sister_id}`}>
+                          {edu.sister_name || edu.religious_name || "N/A"}
+                        </Link>
+                      </td>
+                      <td>{edu.institution || "N/A"}</td>
+                      <td>{edu.major || "N/A"}</td>
+                      <td>{getLevelBadge(edu.level)}</td>
+                      <td>{edu.graduation_year || "Đang học"}</td>
+                      <td>{getStatusBadge(edu.status)}</td>
+                      <td className="text-end">
+                        <Link
+                          to={`/hoc-van/${edu.id}`}
+                          state={{ education: edu }}
+                          className="btn btn-sm btn-outline-info me-1"
+                          title="Xem chi tiết"
+                        >
+                          <FaEye />
+                        </Link>
+                        <Link
+                          to={`/hoc-van/${edu.id}/edit`}
+                          className="btn btn-sm btn-outline-primary me-1"
+                          title="Chỉnh sửa"
+                        >
+                          <FaEdit />
+                        </Link>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleDelete(edu.id)}
+                          title="Xóa"
+                        >
+                          <FaTrash />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-between align-items-center">
+                  <small className="text-muted">
+                    Trang {currentPage} / {totalPages}
+                  </small>
+                  <Pagination className="mb-0">
+                    <Pagination.First
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                    />
+                    <Pagination.Prev
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                      disabled={currentPage === 1}
+                    />
+                    {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                      const page = i + 1;
+                      return (
+                        <Pagination.Item
+                          key={page}
+                          active={page === currentPage}
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </Pagination.Item>
+                      );
+                    })}
+                    <Pagination.Next
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                      disabled={currentPage === totalPages}
+                    />
+                    <Pagination.Last
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
+                </div>
+              )}
+            </>
+          )}
+        </Card.Body>
+      </Card>
+    </Container>
+  );
+};
+
+export default EducationListAllPage;

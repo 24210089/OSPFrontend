@@ -1,0 +1,116 @@
+/* src/components/common/SearchBox/SearchBox.css */
+
+.search-box {
+  width: 100%;
+}
+
+.search-input-group {
+  position: relative;
+  border-radius: 10px;
+  overflow: visible;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.search-input-group:focus-within {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.search-input {
+  border: 1px solid #dee2e6;
+  border-radius: 10px !important;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
+.search-input:focus {
+  border-color: #667eea;
+  box-shadow: none;
+}
+
+.search-input::placeholder {
+  color: #c0c0c0;
+}
+
+.btn-clear,
+.btn-clear.btn,
+.btn-clear.btn-link {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 10;
+  background: none !important;
+  border: none !important;
+  color: #6c757d !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease;
+  text-decoration: none !important;
+  line-height: 1 !important;
+}
+
+.btn-clear:hover,
+.btn-clear.btn:hover,
+.btn-clear.btn-link:hover {
+  background-color: #f8f9fa !important;
+  color: #dc3545 !important;
+  text-decoration: none !important;
+}
+
+.btn-clear:focus,
+.btn-clear.btn:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.btn-search {
+  border-radius: 0 10px 10px 0;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Size Variants */
+.search-input-group.input-group-sm .search-icon,
+.search-input-group.input-group-sm .search-input {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.search-input-group.input-group-lg .search-icon,
+.search-input-group.input-group-lg .search-input {
+  padding: 1rem 1.25rem;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .search-input-group {
+    border-radius: 8px;
+  }
+
+  .search-icon,
+  .search-input {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-search {
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+  }
+}
