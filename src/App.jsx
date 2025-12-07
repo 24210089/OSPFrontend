@@ -20,26 +20,26 @@ import "./App.css";
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <NotificationProvider>
-          <SidebarProvider>
-            <AppRoutes />
-            <ChatbotWidget />
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              hideProgressBar={false}
-              newestOnTop
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-              theme="colored"
-            />
-          </SidebarProvider>
-        </NotificationProvider>
-      </AuthProvider>
+      {/* <AuthProvider> */}
+      <NotificationProvider>
+        <SidebarProvider>
+          <AppRoutes />
+          <ChatbotWidget />
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
+        </SidebarProvider>
+      </NotificationProvider>
+      {/* </AuthProvider> */}
     </BrowserRouter>
   );
 }
